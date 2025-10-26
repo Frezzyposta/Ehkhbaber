@@ -1,0 +1,3310 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EHKM Haber Platformu</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #5865F2;
+            --primary-dark: #4752C4;
+            --secondary: #57F287;
+            --secondary-dark: #43B581;
+            --danger: #ED4245;
+            --danger-dark: #C03537;
+            --warning: #FEE75C;
+            --warning-dark: #F9C62F;
+            --light: #36393f;
+            --dark: #2f3136;
+            --gray: #b9bbbe;
+            --white: #ffffff;
+            --card-bg: #40444b;
+            --body-bg: #36393f;
+            --text-color: #ffffff;
+            --border-color: #484b52;
+            --shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+            --shadow-hover: 0 12px 20px rgba(0, 0, 0, 0.3);
+            --input-bg: #484b52;
+            --success: #3ba55c;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Whitney', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            transition: background-color 0.3s, color 0.3s, transform 0.3s, opacity 0.3s;
+        }
+
+        body {
+            background: var(--body-bg);
+            color: var(--text-color);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Ekranlar */
+        .screen {
+            display: none;
+            min-height: 100vh;
+            opacity: 0;
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .active-screen {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Giriş ve Kayıt Ekranları */
+        #loginScreen, #registerScreen {
+            justify-content: center;
+            align-items: center;
+            background: var(--body-bg);
+            padding: 20px;
+        }
+
+        .authBox {
+            background: var(--dark);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            width: 100%;
+            max-width: 480px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transform: translateY(20px);
+            animation: slideUp 0.5s ease forwards;
+            backdrop-filter: blur(10px);
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+        }
+
+        .authBox::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+
+        .authBox h1 {
+            margin-bottom: 25px;
+            color: var(--white);
+            font-size: 28px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .authBox p.subtitle {
+            color: var(--gray);
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+
+        .authBox input {
+            width: 100%;
+            padding: 14px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            font-size: 16px;
+            background: var(--input-bg);
+            color: var(--text-color);
+            transition: all 0.3s;
+        }
+
+        .authBox input:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(88, 101, 242, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .authBox button {
+            width: 100%;
+            padding: 14px;
+            margin-top: 15px;
+            border: none;
+            border-radius: 6px;
+            background: var(--primary);
+            color: var(--white);
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .authBox button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .authBox .social {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .authBox .social-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 6px;
+            background: var(--input-bg);
+            color: var(--gray);
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .authBox .social-btn:hover {
+            background: var(--card-bg);
+            transform: translateY(-2px);
+        }
+
+        .authBox .social-btn .coming-soon {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--secondary);
+            color: var(--dark);
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        .authBox .link {
+            margin-top: 20px;
+            cursor: pointer;
+            color: var(--primary);
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .authBox .link:hover {
+            text-decoration: underline;
+            color: var(--primary-dark);
+        }
+
+        /* Ana Sayfa */
+        #mainContent {
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-color);
+            flex-wrap: wrap;
+            gap: 15px;
+            backdrop-filter: blur(10px);
+            background: var(--glass-bg);
+            border-radius: 12px;
+            padding: 15px 20px;
+            border: 1px solid var(--glass-border);
+        }
+
+        header h1 {
+            font-size: 28px;
+            color: var(--white);
+            font-weight: 700;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: var(--input-bg);
+            border-radius: 6px;
+            padding: 10px 15px;
+            border: 1px solid var(--border-color);
+            flex-grow: 1;
+            transition: all 0.2s;
+        }
+
+        .search-box:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(88, 101, 242, 0.3);
+        }
+
+        .search-box input {
+            border: none;
+            background: transparent;
+            padding: 5px;
+            color: var(--text-color);
+            outline: none;
+            width: 100%;
+        }
+
+        .theme-toggle, .user-menu-btn {
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            border-radius: 6px;
+            padding: 10px 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            height: 42.5px;
+            transition: all 0.2s;
+        }
+
+        .theme-toggle:hover, .user-menu-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        /* Haberler */
+        .haberler {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .haber {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border: 1px solid transparent;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+        }
+
+        .haber::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transform: scaleX(0);
+            transition: transform 0.3s;
+        }
+
+        .haber:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+            border-color: var(--primary);
+        }
+
+        .haber:hover::before {
+            transform: scaleX(1);
+        }
+
+        .haber-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .haber h3 {
+            color: var(--white);
+            font-size: 18px;
+            margin-right: 10px;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        .haber p {
+            color: var(--gray);
+            font-size: 14px;
+            margin-bottom: 15px;
+            flex-grow: 1;
+            line-height: 1.5;
+        }
+
+        .haber-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+        }
+
+        .haber-date {
+            font-size: 12px;
+            color: var(--gray);
+        }
+
+        .haber-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .like-btn {
+            background: transparent;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+            transition: all 0.2s;
+            padding: 5px 10px;
+            border-radius: 20px;
+        }
+
+        .like-btn:hover {
+            background: rgba(237, 66, 69, 0.1);
+        }
+
+        .like-btn.liked {
+            color: var(--danger);
+        }
+
+        .badge-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            background: var(--primary);
+            color: var(--white);
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .badge.mcpe {
+            background: var(--secondary);
+            color: var(--dark);
+        }
+
+        .badge.licensed {
+            background: var(--warning);
+            color: var(--dark);
+        }
+
+        .badge.announcement {
+            background: var(--primary);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+          
+        .modal-content {
+            background: var(--dark);
+            border-radius: 12px;
+            max-width: 500px;
+            width: 100%;
+            padding: 30px;
+            position: relative;
+            animation: fadeIn 0.3s ease;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+        }
+          
+        .modal-content h2 {
+            margin-top: 0;
+            color: var(--white);
+            margin-bottom: 20px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+          
+        .modal-content input, .modal-content select, .modal-content textarea {
+            width: 100%;
+            padding: 14px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            font-size: 16px;
+            background: var(--input-bg);
+            color: var(--text-color);
+        }
+
+        .modal-content input:focus, .modal-content select:focus, .modal-content textarea:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(88, 101, 242, 0.3);
+        }
+          
+        .modal-content button {
+            margin-top: 15px;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 6px;
+            background: var(--primary);
+            color: var(--white);
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s;
+        }
+          
+        .modal-content button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .modal-content p {
+            color: var(--gray);
+            font-size: 16px;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .modal-buttons button {
+            width: 100%;
+            padding: 14px;
+            margin-top: 0;
+        }
+        .modal-buttons .btn-confirm {
+            background: var(--danger);
+        }
+        .modal-buttons .btn-confirm:hover {
+            background: var(--danger-dark);
+        }
+        .modal-buttons .btn-cancel {
+            background: var(--card-bg);
+        }
+        .modal-buttons .btn-cancel:hover {
+            background: var(--input-bg);
+        }
+          
+        #haberModalContent {
+            max-width: 700px;
+        }
+
+        #haberModalContent h2 {
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        #haberModalContent p {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        #closeModal {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--gray);
+            transition: all 0.2s;
+        }
+
+        #closeModal:hover {
+            color: var(--white);
+            transform: scale(1.1);
+        }
+
+        #deleteBtn {
+            margin-top: 15px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            background: var(--danger);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        #deleteBtn:hover {
+            background: var(--danger-dark);
+            transform: translateY(-2px);
+        }
+
+        /* Yeni Paylaşım Paneli */
+        .add-haber-btn {
+            margin-bottom: 20px;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 6px;
+            background: var(--primary);
+            color: var(--white);
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .add-haber-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        #addHaberDiv {
+            margin-top: 20px;
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+            display: none;
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+        }
+
+        #addHaberDiv h2 {
+            color: var(--white);
+            margin-bottom: 20px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #addHaberDiv input, #addHaberDiv textarea, #addHaberDiv select {
+            width: 100%;
+            padding: 14px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            font-size: 16px;
+            background: var(--input-bg);
+            color: var(--text-color);
+        }
+
+        #addHaberDiv input:focus, #addHaberDiv textarea:focus, #addHaberDiv select:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(88, 101, 242, 0.3);
+        }
+
+        #addHaberDiv textarea {
+            height: 150px;
+            resize: vertical;
+        }
+
+        #addHaberDiv button {
+            margin-top: 10px;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 6px;
+            background: var(--primary);
+            color: var(--white);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        #addHaberDiv button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        /* Kullanıcı Menüsü */
+        .user-menu {
+            position: relative;
+        }
+
+        .user-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: var(--dark);
+            border-radius: 10px;
+            box-shadow: var(--shadow-hover);
+            padding: 15px;
+            width: 250px;
+            z-index: 100;
+            margin-top: 10px;
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+        }
+
+        .user-dropdown.active {
+            display: block;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-weight: bold;
+            font-size: 18px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .user-details h4 {
+            color: var(--white);
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .user-details .user-role {
+            font-size: 12px;
+            color: var(--gray);
+            background: var(--card-bg);
+            padding: 2px 8px;
+            border-radius: 10px;
+            display: inline-block;
+        }
+
+        .user-dropdown-menu {
+            list-style: none;
+        }
+
+        .user-dropdown-menu li {
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .user-dropdown-menu li:last-child {
+            border-bottom: none;
+        }
+
+        .user-dropdown-menu a {
+            color: var(--gray);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            transition: all 0.2s;
+            padding: 5px;
+            border-radius: 6px;
+        }
+
+        .user-dropdown-menu a:hover {
+            color: var(--white);
+            background: var(--card-bg);
+        }
+
+        /* Admin Paneli */
+        #adminPanel {
+            margin-top: 40px;
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+        }
+
+        #adminPanel h2 {
+            color: var(--white);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+        }
+
+        .admin-section {
+            margin-bottom: 30px;
+        }
+
+        .admin-section h3 {
+            color: var(--white);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .users-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+        }
+
+        .user-card {
+            background: var(--dark);
+            padding: 20px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid var(--border-color);
+            transition: all 0.2s;
+            backdrop-filter: blur(10px);
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+        }
+
+        .user-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow);
+        }
+
+        .user-card-info {
+            flex-grow: 1;
+        }
+
+        .user-card-info h4 {
+            color: var(--white);
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .user-card-info p {
+            font-size: 12px;
+            color: var(--gray);
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .user-action-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: var(--gray);
+            font-size: 14px;
+            padding: 8px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .user-action-btn:hover {
+            color: var(--white);
+            background: var(--card-bg);
+        }
+
+        .user-action-btn.delete:hover {
+            color: var(--danger);
+            background: rgba(237, 66, 69, 0.1);
+        }
+
+        /* CEO Paneli */
+        #ceoPanel {
+            margin-top: 40px;
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+        }
+
+        #ceoPanel h2 {
+            color: var(--white);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+        }
+
+        .ceo-section {
+            margin-bottom: 30px;
+        }
+
+        .ceo-section h3 {
+            color: var(--white);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .security-settings {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .security-card {
+            background: var(--dark);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+        }
+
+        .security-card h4 {
+            color: var(--white);
+            margin-bottom: 10px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .security-card p {
+            color: var(--gray);
+            font-size: 14px;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .security-card button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 6px;
+            background: var(--primary);
+            color: var(--white);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+        }
+
+        .security-card button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px 0;
+            background: var(--dark);
+            color: var(--gray);
+            font-size: 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+        }
+
+        /* Animasyonlar */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Filtreleme */
+        .filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 18px;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg);
+            color: var(--gray);
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .filter-btn:hover {
+            background: var(--input-bg);
+            transform: translateY(-2px);
+        }
+
+        .filter-btn.active {
+            background: var(--primary);
+            color: var(--white);
+            border-color: var(--primary);
+        }
+
+        /* Boş durum */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--gray);
+            grid-column: 1 / -1;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: var(--border-color);
+        }
+          
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--gray);
+            transition: all 0.2s;
+        }
+          
+        .close:hover {
+            color: var(--white);
+            transform: scale(1.1);
+        }
+          
+        .user-avatar-large {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-weight: bold;
+            font-size: 36px;
+            margin: 0 auto 20px;
+            position: relative;
+            overflow: hidden;
+            border: 3px solid var(--primary);
+        }
+
+        .user-avatar-large img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar-upload {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 14px;
+        }
+          
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+
+        /* Bildirim */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--primary);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: var(--shadow-hover);
+            z-index: 10000;
+            animation: fadeIn 0.3s, fadeOut 0.3s 2.7s;
+            max-width: calc(100% - 40px);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            backdrop-filter: blur(10px);
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+        }
+
+        .notification.success {
+            background: var(--success);
+        }
+
+        .notification.error {
+            background: var(--danger);
+        }
+
+        .notification.warning {
+            background: var(--warning);
+            color: var(--dark);
+        }
+          
+        /* MOBİL İYİLEŞTİRMELERİ */
+          
+        @media (min-width: 769px) {
+            header h1 { width: auto; }
+            .header-controls { width: auto; flex-wrap: nowrap; }
+            .search-box { width: 250px; }
+            .add-haber-btn { width: auto; justify-content: flex-start; }
+        }
+          
+        @media (max-width: 768px) {
+            .authBox { padding: 30px 20px; }
+            .haberler { grid-template-columns: 1fr; }
+            .user-dropdown { right: 0; left: 0; width: 90%; margin: 10px auto 0; }
+            .users-list { grid-template-columns: 1fr; }
+            .user-menu-btn { flex-grow: 1; }
+            .theme-toggle { flex-grow: 1; }
+            .security-settings { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 480px) {
+            .authBox .social { flex-direction: column; }
+            .authBox { padding: 20px 15px; }
+            #mainContent { padding: 10px; }
+            .header-controls { gap: 10px; }
+            .user-menu { width: 100%; }
+            .user-menu-btn, .theme-toggle { flex-grow: 0; width: 100%; justify-content: center; }
+            .filters { gap: 5px; }
+            .filter-btn { font-size: 12px; padding: 8px 12px; }
+            .modal-content { padding: 20px; }
+        }
+
+        /* İlerleme Çubuğu */
+        .progress-bar {
+            height: 4px;
+            background: var(--border-color);
+            border-radius: 2px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 2px;
+            transition: width 0.3s;
+        }
+
+        /* Sekmeler */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 12px 20px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            font-weight: 600;
+        }
+
+        .tab.active {
+            border-bottom: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Yeni eklenen stiller */
+        .ban-status {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 600;
+            margin-left: 5px;
+        }
+        
+        .ban-status.banned {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .ban-status.active {
+            background: var(--success);
+            color: white;
+        }
+        
+        .comment-section {
+            margin-top: 20px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+        }
+        
+        .comment {
+            background: var(--dark);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            backdrop-filter: blur(10px);
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+        }
+        
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .comment-author {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .comment-date {
+            font-size: 12px;
+            color: var(--gray);
+        }
+        
+        .comment-text {
+            color: var(--gray);
+            line-height: 1.4;
+        }
+        
+        .comment-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 8px;
+        }
+        
+        .comment-action {
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .comment-action:hover {
+            color: var(--white);
+        }
+        
+        .add-comment {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .add-comment input {
+            flex-grow: 1;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: var(--input-bg);
+            color: var(--text-color);
+        }
+        
+        .add-comment button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 6px;
+            background: var(--primary);
+            color: var(--white);
+            cursor: pointer;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .stat-card {
+            background: var(--dark);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: var(--gray);
+        }
+        
+        .notification-bell {
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .notification-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .notifications-panel {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: var(--dark);
+            border-radius: 10px;
+            box-shadow: var(--shadow-hover);
+            padding: 15px;
+            width: 300px;
+            z-index: 100;
+            margin-top: 10px;
+            border: 1px solid var(--border-color);
+            display: none;
+            backdrop-filter: blur(10px);
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+        }
+        
+        .notifications-panel.active {
+            display: block;
+            animation: fadeIn 0.2s ease;
+        }
+        
+        .notification-item {
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+        
+        .notification-text {
+            font-size: 14px;
+            color: var(--gray);
+        }
+        
+        .notification-time {
+            font-size: 10px;
+            color: var(--gray);
+            margin-top: 5px;
+        }
+        
+        .clear-notifications {
+            text-align: center;
+            margin-top: 10px;
+            color: var(--primary);
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .clear-notifications:hover {
+            text-decoration: underline;
+        }
+
+        /* Şifre güçlülük göstergesi */
+        .password-strength {
+            margin-top: 5px;
+            font-size: 12px;
+        }
+        
+        .strength-weak {
+            color: var(--danger);
+        }
+        
+        .strength-medium {
+            color: var(--warning);
+        }
+        
+        .strength-strong {
+            color: var(--success);
+        }
+
+        /* CEO özel stilleri */
+        .ceo-badge {
+            background: linear-gradient(45deg, var(--warning), var(--danger));
+            color: var(--dark);
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+
+        .admin-badge {
+            background: var(--primary);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+
+        .user-badge {
+            background: var(--gray);
+            color: var(--dark);
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+
+        /* Sistem durumu göstergesi */
+        .system-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            background: var(--card-bg);
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--success);
+        }
+
+        .status-indicator.offline {
+            background: var(--danger);
+        }
+
+        /* Gelişmiş CEO paneli */
+        .ceo-quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .quick-action {
+            background: var(--dark);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            backdrop-filter: blur(10px);
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+        }
+
+        .quick-action:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow);
+        }
+
+        .quick-action i {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        /* Online kullanıcı listesi */
+        .online-users {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .online-user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--card-bg);
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+        .online-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+        }
+    </style>
+</head>
+<body>
+    <!-- Giriş Ekranı -->
+    <div id="loginScreen" class="screen active-screen">
+        <div class="authBox">
+            <h1><i class="fas fa-newspaper"></i> EHKM Haber Platformu</h1>
+            <p class="subtitle">Haberleri görüntülemek için giriş yapın</p>
+            <input type="text" id="username" placeholder="Kullanıcı Adı">
+            <input type="password" id="password" placeholder="Şifre">
+            <button onclick="login()"><i class="fas fa-sign-in-alt"></i> Giriş Yap</button>
+            <div class="social">
+                <div class="social-btn">
+                    <i class="fab fa-google"></i> Google
+                    <span class="coming-soon">2025</span>
+                </div>
+                <div class="social-btn">
+                    <i class="fab fa-apple"></i> Apple
+                    <span class="coming-soon">2025</span>
+                </div>
+                <div class="social-btn">
+                    <i class="fab fa-github"></i> GitHub
+                    <span class="coming-soon">2025</span>
+                </div>
+            </div>
+            <p class="link" onclick="showScreen('registerScreen')">Hesabınız yok mu? Kayıt olun</p>
+        </div>
+    </div>
+
+    <!-- Kayıt Ekranı -->
+    <div id="registerScreen" class="screen">
+        <div class="authBox">
+            <h1><i class="fas fa-user-plus"></i> Hesap Oluştur</h1>
+            <p class="subtitle">EHKM Haber Platformu'na katılın</p>
+            <input type="text" id="regUsername" placeholder="Kullanıcı Adı">
+            <input type="password" id="regPassword" placeholder="Şifre" onkeyup="checkPasswordStrength()">
+            <div class="password-strength" id="passwordStrengthText"></div>
+            <input type="password" id="regPasswordConfirm" placeholder="Şifre Tekrar">
+            <button onclick="registerUser()"><i class="fas fa-user-plus"></i> Kayıt Ol</button>
+            <p class="link" onclick="showScreen('loginScreen')">Zaten hesabınız var mı? Giriş yapın</p>
+        </div>
+    </div>
+
+    <!-- Ana Sayfa -->
+    <div id="mainContent" class="screen">
+        <header>
+            <h1><i class="fas fa-newspaper"></i> EHKM Haber Platformu</h1>
+            <div class="header-controls">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Haber ara..." onkeyup="filterHaberler()">
+                </div>
+                <button class="theme-toggle" onclick="toggleTheme()">
+                    <i class="fas fa-moon"></i> <span>Tema</span>
+                </button>
+                <div class="notification-bell" onclick="toggleNotifications()">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-count" id="notificationCount" style="display:none">0</span>
+                    <div class="notifications-panel" id="notificationsPanel">
+                        <div id="notificationsList">
+                            <!-- Bildirimler buraya eklenecek -->
+                        </div>
+                        <div class="clear-notifications" onclick="clearNotifications()">Tümünü Temizle</div>
+                    </div>
+                </div>
+                <div class="user-menu">
+                    <button class="user-menu-btn" onclick="toggleUserMenu()">
+                        <i class="fas fa-user"></i> <span id="userDisplayNameHeader">Kullanıcı</span>
+                    </button>
+                    <div class="user-dropdown">
+                        <div class="user-info">
+                            <div class="user-avatar" id="userAvatar">
+                                <div id="avatarInitial">U</div>
+                            </div>
+                            <div class="user-details">
+                                <h4 id="userDisplayName">Kullanıcı</h4>
+                                <p class="user-role" id="userRole">Kullanıcı</p>
+                            </div>
+                        </div>
+                        <ul class="user-dropdown-menu">
+                            <li><a href="#" onclick="openProfileModal()"><i class="fas fa-user-edit"></i> Profili Düzenle</a></li>
+                            <li><a href="#" onclick="openChangePasswordModal()"><i class="fas fa-key"></i> Şifre Değiştir</a></li>
+                            <li><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Çıkış Yap</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="filters">
+            <button class="filter-btn active" onclick="setFilter('all')">Tümü</button>
+            <button class="filter-btn" onclick="setFilter('mcpe')">MCPE</button>
+            <button class="filter-btn" onclick="setFilter('licensed')">Lisanslı</button>
+            <button class="filter-btn" onclick="setFilter('announcement')">Duyuru</button>
+            <button class="filter-btn" onclick="setFilter('popular')">Popüler</button>
+        </div>
+
+        <!-- CEO Hızlı Erişim Butonları -->
+        <div id="ceoQuickActions" class="ceo-quick-actions" style="display:none;">
+            <div class="quick-action" onclick="openPasswordViewModal()">
+                <i class="fas fa-user-lock"></i>
+                <div>Şifre Görüntüle</div>
+            </div>
+            <div class="quick-action" onclick="openTimedBanModal()">
+                <i class="fas fa-user-clock"></i>
+                <div>Süreli Banlama</div>
+            </div>
+            <div class="quick-action" onclick="openRoleManagementModal()">
+                <i class="fas fa-user-shield"></i>
+                <div>Yetki Yönetimi</div>
+            </div>
+            <div class="quick-action" onclick="backupData()">
+                <i class="fas fa-database"></i>
+                <div>Veri Yedekle</div>
+            </div>
+        </div>
+
+        <button class="add-haber-btn" onclick="toggleAddHaber()">
+            <i class="fas fa-plus"></i> Yeni Paylaşım Yap
+        </button>
+
+        <div id="addHaberDiv">
+            <h2><i class="fas fa-plus-circle"></i> Yeni Haber Ekle</h2>
+            <input type="text" id="newHaberTitle" placeholder="Başlık">
+            <textarea id="newHaberText" placeholder="Haber Metni"></textarea>
+            <select id="newHaberCategory">
+                <option value="announcement">Duyuru</option>
+                <option value="mcpe">MCPE</option>
+                <option value="licensed">Lisanslı</option>
+                <option value="general">Genel</option>
+            </select>
+            <button onclick="addHaber()"><i class="fas fa-share"></i> Paylaş</button>
+        </div>
+
+        <div class="haberler" id="haberlerContainer">
+            <!-- Haberler buraya dinamik olarak eklenecek -->
+        </div>
+
+        <!-- Admin Paneli -->
+        <div id="adminPanel" style="display:none;">
+            <h2><i class="fas fa-cogs"></i> Admin Paneli</h2>
+              
+            <div class="admin-section">
+                <h3><i class="fas fa-users"></i> Kullanıcı Yönetimi</h3>
+                <div class="users-list" id="usersList">
+                    <!-- Kullanıcılar buraya dinamik olarak eklenecek -->
+                </div>
+            </div>
+              
+            <div class="admin-section">
+                <h3><i class="fas fa-chart-bar"></i> İstatistikler</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalHaberCount">0</div>
+                        <div class="stat-label">Toplam Haber</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalUserCount">0</div>
+                        <div class="stat-label">Toplam Kullanıcı</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="activeUserCount">0</div>
+                        <div class="stat-label">Aktif Kullanıcı</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="bannedUserCount">0</div>
+                        <div class="stat-label">Yasaklı Kullanıcı</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CEO Paneli -->
+        <div id="ceoPanel" style="display:none;">
+            <h2><i class="fas fa-crown"></i> CEO Paneli</h2>
+            
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('securityTab')">Güvenlik Ayarları</div>
+                <div class="tab" onclick="switchTab('userManagementTab')">Kullanıcı Yönetimi</div>
+                <div class="tab" onclick="switchTab('systemTab')">Sistem Ayarları</div>
+            </div>
+            
+            <div class="tab-content active" id="securityTab">
+                <div class="ceo-section">
+                    <h3><i class="fas fa-shield-alt"></i> Güvenlik Ayarları</h3>
+                    <div class="security-settings">
+                        <div class="security-card">
+                            <h4><i class="fas fa-user-lock"></i> Şifre Görüntüleme</h4>
+                            <p>Kullanıcı şifrelerini görüntüleme yetkisi (yalnızca acil durumlarda kullanın)</p>
+                            <button onclick="openPasswordViewModal()">Şifre Görüntüle</button>
+                        </div>
+                        <div class="security-card">
+                            <h4><i class="fas fa-user-clock"></i> Süreli Banlama</h4>
+                            <p>Kullanıcıları belirli bir süre için banlama işlemi</p>
+                            <button onclick="openTimedBanModal()">Süreli Banlama</button>
+                        </div>
+                        <div class="security-card">
+                            <h4><i class="fas fa-user-shield"></i> Yetki Yönetimi</h4>
+                            <p>Kullanıcılara admin yetkisi verme veya geri alma işlemleri</p>
+                            <button onclick="openRoleManagementModal()">Yetki Yönetimi</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="userManagementTab">
+                <div class="ceo-section">
+                    <h3><i class="fas fa-users-cog"></i> Gelişmiş Kullanıcı Yönetimi</h3>
+                    <div class="users-list" id="ceoUsersList">
+                        <!-- CEO için kullanıcı listesi -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="systemTab">
+                <div class="ceo-section">
+                    <h3><i class="fas fa-sliders-h"></i> Sistem Ayarları</h3>
+                    <div class="security-settings">
+                        <div class="security-card">
+                            <h4><i class="fas fa-database"></i> Veri Yedekleme</h4>
+                            <p>Tüm platform verilerini yedekleme işlemi</p>
+                            <button onclick="backupData()">Veri Yedekle</button>
+                        </div>
+                        <div class="security-card">
+                            <h4><i class="fas fa-trash-restore"></i> Veri Temizleme</h4>
+                            <p>Eski verileri temizleme ve sistem performansını iyileştirme</p>
+                            <button onclick="openDataCleanupModal()">Veri Temizle</button>
+                        </div>
+                        <div class="security-card">
+                            <h4><i class="fas fa-history"></i> Sistem Logları</h4>
+                            <p>Sistemdeki tüm işlemlerin kayıtlarını görüntüleme</p>
+                            <button onclick="openSystemLogsModal()">Sistem Logları</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            © 2023 Apex Studio tarafından geliştiriliyor, EHKM ile işbirliği
+        </footer>
+    </div>
+
+    <!-- Haber Modal -->
+    <div id="haberModal" class="modal">
+        <div id="haberModalContent">
+            <span id="closeModal" onclick="closeHaber()">&times;</span>
+            <h2 id="haberBaslik"></h2>
+            <p id="haberTarih" class="haber-date"></p>
+            <div id="haberBadge" class="badge-container"></div>
+            <p id="haberMetin"></p>
+            <div class="haber-actions">
+                <button class="like-btn" id="modalLikeBtn" onclick="toggleLike(currentHaberIndex)">
+                    <i class="far fa-heart"></i> <span id="modalLikeCount">0</span>
+                </button>
+            </div>
+            
+            <!-- Yorum Bölümü -->
+            <div class="comment-section">
+                <h3>Yorumlar</h3>
+                <div id="commentsContainer">
+                    <!-- Yorumlar buraya eklenecek -->
+                </div>
+                <div class="add-comment">
+                    <input type="text" id="newComment" placeholder="Yorumunuzu yazın...">
+                    <button onclick="addComment()">Yorum Yap</button>
+                </div>
+            </div>
+            
+            <button id="deleteBtn" onclick="deleteHaber()" style="display:none;">Haber Sil</button>
+        </div>
+    </div>
+
+    <!-- Profil Düzenleme Modal -->
+    <div id="profileModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeProfileModal()">&times;</span>
+            <h2><i class="fas fa-user-edit"></i> Profil Düzenle</h2>
+            <div class="user-avatar-large" id="profileAvatar">
+                <div id="profileAvatarInitial">U</div>
+                <div class="avatar-upload" onclick="document.getElementById('avatarUpload').click()">
+                    <i class="fas fa-camera"></i>
+                </div>
+            </div>
+            <input type="file" id="avatarUpload" accept="image/*" style="display:none" onchange="uploadAvatar(event)">
+            <input type="text" id="profileName" placeholder="Görünen İsim">
+            <button onclick="updateProfile()"><i class="fas fa-save"></i> Güncelle</button>
+        </div>
+    </div>
+
+    <!-- Şifre Değiştirme Modal -->
+    <div id="changePasswordModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeChangePasswordModal()">&times;</span>
+            <h2><i class="fas fa-key"></i> Şifre Değiştir</h2>
+            <input type="password" id="currentPassword" placeholder="Mevcut Şifre">
+            <input type="password" id="newPassword" placeholder="Yeni Şifre" onkeyup="checkPasswordStrength()">
+            <div class="progress-bar">
+                <div class="progress" id="passwordStrength"></div>
+            </div>
+            <p id="passwordStrengthText" style="font-size: 12px; color: var(--gray); margin-top: 5px;"></p>
+            <input type="password" id="confirmNewPassword" placeholder="Yeni Şifre Tekrar">
+            <button onclick="changePassword()"><i class="fas fa-key"></i> Şifreyi Değiştir</button>
+        </div>
+    </div>
+
+    <!-- CEO Modalları -->
+    <div id="passwordViewModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closePasswordViewModal()">&times;</span>
+            <h2><i class="fas fa-user-lock"></i> Şifre Görüntüle</h2>
+            <p>Kullanıcı şifrelerini görüntülemek için kullanıcı adını girin:</p>
+            <input type="text" id="passwordViewUsername" placeholder="Kullanıcı Adı">
+            <button onclick="viewUserPassword()"><i class="fas fa-eye"></i> Şifreyi Görüntüle</button>
+            <div id="passwordResult" style="margin-top: 15px; display: none;">
+                <p><strong>Kullanıcı:</strong> <span id="passwordViewUser"></span></p>
+                <p><strong>Şifre:</strong> <span id="passwordViewPassword"></span></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="timedBanModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeTimedBanModal()">&times;</span>
+            <h2><i class="fas fa-user-clock"></i> Süreli Banlama</h2>
+            <p>Kullanıcıyı belirli bir süre için banlamak için bilgileri girin:</p>
+            <input type="text" id="timedBanUsername" placeholder="Kullanıcı Adı">
+            <select id="banDuration">
+                <option value="1">1 Gün</option>
+                <option value="7">1 Hafta</option>
+                <option value="30">1 Ay</option>
+                <option value="365">1 Yıl</option>
+                <option value="permanent">Kalıcı</option>
+            </select>
+            <textarea id="banReason" placeholder="Ban Sebebi"></textarea>
+            <button onclick="applyTimedBan()"><i class="fas fa-ban"></i> Banla</button>
+        </div>
+    </div>
+
+    <div id="roleManagementModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeRoleManagementModal()">&times;</span>
+            <h2><i class="fas fa-user-shield"></i> Yetki Yönetimi</h2>
+            <p>Kullanıcı yetkilerini yönetmek için bilgileri girin:</p>
+            <input type="text" id="roleUsername" placeholder="Kullanıcı Adı">
+            <select id="newRole">
+                <option value="user">Kullanıcı</option>
+                <option value="admin">Admin</option>
+                <option value="ceo">CEO</option>
+            </select>
+            <button onclick="changeUserRole()"><i class="fas fa-user-cog"></i> Yetkiyi Değiştir</button>
+        </div>
+    </div>
+
+    <!-- Onay Modalı -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <h2><i class="fas fa-exclamation-triangle"></i> Emin misiniz?</h2>
+            <p id="confirmMessage">Bu işlemi geri alamazsınız.</p>
+            <div class="modal-buttons">
+                <button class="btn-cancel" onclick="closeConfirmModal()">İptal</button>
+                <button class="btn-confirm" onclick="executeConfirm()">Onayla</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // === GÜNCELLENMİŞ VERİ YÜKLEME MANTIĞI ===
+        // Bu kod, sayfa her yüklendiğinde çalışır ve Acode gibi ortamların
+        // hafızayı sıfırlamasını (verilerin kaybolmasını) engeller.
+          
+        // 1. Varsayılan (kalıcı) CEO/Admin kullanıcılarını tanımla
+        const defaultAdmins = {
+            "AliHd05": { 
+                password: "200808", 
+                role: "ceo", 
+                displayName: "Ali", 
+                avatar: "A", 
+                banned: false,
+                avatarUrl: null,
+                createdAt: new Date().toISOString(),
+                lastLogin: null
+            },
+            "ArkCreatur": { 
+                password: "20102025", 
+                role: "ceo", 
+                displayName: "Arda", 
+                avatar: "A", 
+                banned: false,
+                avatarUrl: null,
+                createdAt: new Date().toISOString(),
+                lastLogin: null
+            }
+        };
+          
+        // 2. Varsayılan (kalıcı) haberleri tanımla
+        const defaultHaberler = [
+            { 
+                baslik: "Sunucumuz Kuruldu!", 
+                metin: "Sunucumuz başarıyla kuruldu! MCPE uyumlu içerik ve lisanslı CAR modülleriyle hizmetinizdeyiz.", 
+                tarih: "1 Eylül 2020",
+                kategori: ["mcpe", "licensed"],
+                likes: 12,
+                likedBy: [],
+                author: "AliHd05",
+                comments: [
+                    { author: "ArkCreatur", text: "Harika bir başlangıç!", date: "1 Eylül 2020" }
+                ]
+            },
+            { 
+                baslik: "Altyapı Optimizasyonu", 
+                metin: "Sunucu altyapısı optimize edildi, yeni modüller eklendi ve performans iyileştirmeleri yapıldı.", 
+                tarih: "5 Eylül 2020",
+                kategori: ["announcement"],
+                likes: 8,
+                likedBy: [],
+                author: "ArkCreatur",
+                comments: []
+            },
+            { 
+                baslik: "EHKM 1.0.0 Sürümü", 
+                metin: "EHKM 1.0.0 sürümü başarıyla geçiş yaptı. Yeni özellikler ve iyileştirmelerle karşınızdayız.", 
+                tarih: "8 Eylül 2020",
+                kategori: ["announcement", "licensed"],
+                likes: 15,
+                likedBy: [],
+                author: "AliHd05",
+                comments: []
+            },
+            { 
+                baslik: "MCPE Güncellemesi", 
+                metin: "MCPE uyumluluğu için büyük güncelleme yayınlandı. Yeni eklentiler ve performans iyileştirmeleri eklendi.", 
+                tarih: "12 Eylül 2020",
+                kategori: ["mcpe"],
+                likes: 22,
+                likedBy: [],
+                author: "ArkCreatur",
+                comments: []
+            },
+            { 
+                baslik: "Lisanslı İçerikler", 
+                metin: "Lisanslı CAR modülleri ve özel eklentiler artık kullanıma hazır. Premium deneyim için hemen katılın.", 
+                tarih: "18 Eylül 2020",
+                kategori: ["licensed"],
+                likes: 18,
+                likedBy: [],
+                author: "AliHd05",
+                comments: []
+            }
+        ];
+
+        // 3. Kullanıcıları localStorage'dan GÜVENLİ yükle
+        let users = {};
+        try {
+            const storedUsers = localStorage.getItem('users');
+            if (storedUsers) {
+                users = JSON.parse(storedUsers);
+                
+                // Varsayılan adminleri kontrol et ve güncelle
+                for (const username in defaultAdmins) {
+                    if (!users[username] || users[username].role !== 'ceo') {
+                        users[username] = { ...defaultAdmins[username], ...users[username] };
+                    }
+                }
+            } else {
+                // İlk yükleme - varsayılan adminleri kullan
+                users = { ...defaultAdmins };
+            }
+        } catch (e) {
+            console.error("Kullanıcı verisi okunurken hata oluştu, varsayılana dönülüyor:", e);
+            users = { ...defaultAdmins }; // Hata varsa varsayılana dön
+        }
+
+        // 4. Haberleri localStorage'dan GÜVENLİ yükle
+        let haberler = [];
+        try {
+            const storedHaberler = localStorage.getItem('haberler');
+            // Eğer hafızada haber varsa ve boş değilse, onu kullan
+            if (storedHaberler && JSON.parse(storedHaberler).length > 0) {
+                haberler = JSON.parse(storedHaberler);
+            } else {
+                // Hafıza boşsa (Acode sıfırladıysa), varsayılanı yükle ve kaydet
+                haberler = defaultHaberler;
+                localStorage.setItem('haberler', JSON.stringify(haberler));
+            }
+        } catch (e) {
+            console.error("Haber verisi okunurken hata oluştu, varsayılana dönülüyor:", e);
+            haberler = defaultHaberler; // Hata olursa varsayılana dön
+             try {
+                 localStorage.setItem('haberler', JSON.stringify(haberler));
+             } catch (e2) {
+                console.error("Haber verisi kaydedilemedi:", e2);
+             }
+        }
+
+        // Bildirimleri yükle
+        let notifications = [];
+        try {
+            const storedNotifications = localStorage.getItem('notifications');
+            if (storedNotifications) {
+                notifications = JSON.parse(storedNotifications);
+            }
+        } catch (e) {
+            console.error("Bildirim verisi okunurken hata oluştu:", e);
+        }
+          
+        // === VERİ YÜKLEME MANTIĞI SONU ===
+
+        let currentUser = null;
+        let currentFilter = 'all';
+        let currentSession = {
+            username: null,
+            loginTime: null,
+            lastActivity: Date.now()
+        };
+
+        // localStorage'a güvenli kaydetme (her değişiklikte çağrılacak)
+        function saveUsers() {
+            try {
+                localStorage.setItem('users', JSON.stringify(users));
+            } catch (e) {
+                console.error("Kullanıcılar kaydedilirken hata oluştu:", e);
+                showNotification("Veri kaydedilemedi! (Hafıza dolu olabilir)", "error");
+            }
+        }
+
+        function saveHaberler() {
+             try {
+                localStorage.setItem('haberler', JSON.stringify(haberler));
+            } catch (e) {
+                console.error("Haberler kaydedilirken hata oluştu:", e);
+                showNotification("Veri kaydedilemedi! (Hafıza dolu olabilir)", "error");
+            }
+        }
+
+        function saveNotifications() {
+            try {
+                localStorage.setItem('notifications', JSON.stringify(notifications));
+            } catch (e) {
+                console.error("Bildirimler kaydedilirken hata oluştu:", e);
+            }
+        }
+
+        // Ekran yönetimi
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active-screen');
+            });
+            document.getElementById(screenId).classList.add('active-screen');
+              
+            if (screenId === 'mainContent') {
+                renderHaberler();
+                updateUserInfo();
+                updateNotificationCount();
+                
+                // CEO hızlı erişim butonlarını göster
+                if (currentUser && users[currentUser].role === 'ceo') {
+                    document.getElementById('ceoQuickActions').style.display = 'grid';
+                } else {
+                    document.getElementById('ceoQuickActions').style.display = 'none';
+                }
+                
+                if (currentUser && users[currentUser].role === 'admin') {
+                    document.getElementById('adminPanel').style.display = 'block';
+                    document.getElementById('ceoPanel').style.display = 'none';
+                    renderUsersList();
+                    updateStats();
+                } else if (currentUser && users[currentUser].role === 'ceo') {
+                    document.getElementById('adminPanel').style.display = 'block';
+                    document.getElementById('ceoPanel').style.display = 'block';
+                    renderUsersList();
+                    renderCeoUsersList();
+                    updateStats();
+                } else {
+                    document.getElementById('adminPanel').style.display = 'none';
+                    document.getElementById('ceoPanel').style.display = 'none';
+                }
+            }
+        }
+
+        // Şifre güçlülük kontrolü
+        function checkPasswordStrength() {
+            const password = document.getElementById('regPassword') ? document.getElementById('regPassword').value : 
+                            document.getElementById('newPassword') ? document.getElementById('newPassword').value : '';
+            const strengthBar = document.getElementById('passwordStrength');
+            const strengthText = document.getElementById('passwordStrengthText');
+            
+            if (!password) {
+                if (strengthBar) strengthBar.style.width = '0%';
+                if (strengthText) strengthText.textContent = '';
+                return;
+            }
+            
+            let strength = 0;
+            let feedback = "";
+            
+            // Uzunluk kontrolü
+            if (password.length >= 8) strength += 25;
+            
+            // Büyük harf kontrolü
+            if (/[A-Z]/.test(password)) strength += 25;
+            
+            // Rakam kontrolü
+            if (/[0-9]/.test(password)) strength += 25;
+            
+            // Özel karakter kontrolü
+            if (/[^A-Za-z0-9]/.test(password)) strength += 25;
+            
+            if (strengthBar) strengthBar.style.width = strength + '%';
+            
+            if (strength < 25) {
+                if (strengthBar) strengthBar.style.background = 'var(--danger)';
+                feedback = "Zayıf";
+                if (strengthText) strengthText.className = "password-strength strength-weak";
+            } else if (strength < 50) {
+                if (strengthBar) strengthBar.style.background = 'var(--warning)';
+                feedback = "Orta";
+                if (strengthText) strengthText.className = "password-strength strength-medium";
+            } else if (strength < 75) {
+                if (strengthBar) strengthBar.style.background = 'var(--primary)';
+                feedback = "Güçlü";
+                if (strengthText) strengthText.className = "password-strength strength-strong";
+            } else {
+                if (strengthBar) strengthBar.style.background = 'var(--success)';
+                feedback = "Çok Güçlü";
+                if (strengthText) strengthText.className = "password-strength strength-strong";
+            }
+            
+            if (strengthText) strengthText.textContent = `Şifre Gücü: ${feedback}`;
+            
+            return strength;
+        }
+
+        // Kullanıcı işlemleri
+        function login() {
+            const u = document.getElementById('username').value.trim();
+            const p = document.getElementById('password').value.trim();
+              
+            if (!u || !p) {
+                showNotification("Kullanıcı adı ve şifre gerekli!", "error");
+                return;
+            }
+              
+            if (users[u] && users[u].password === p) {
+                if (users[u].banned) {
+                    showNotification("Bu hesap yasaklanmış!", "error");
+                    return;
+                }
+                
+                // Oturum bilgilerini güncelle
+                currentUser = u;
+                currentSession = {
+                    username: u,
+                    loginTime: new Date().toISOString(),
+                    lastActivity: Date.now()
+                };
+                
+                // Son giriş zamanını güncelle
+                users[u].lastLogin = new Date().toISOString();
+                saveUsers();
+                
+                showScreen('mainContent');
+                showNotification(`Hoş geldiniz, ${users[u].displayName}!`, "success");
+                
+                // Giriş bildirimi ekle
+                addNotification(`${users[u].displayName} sisteme giriş yaptı`, 'info');
+            } else {
+                showNotification("Kullanıcı adı veya şifre yanlış!", "error");
+            }
+        }
+
+        function registerUser() {
+            const u = document.getElementById('regUsername').value.trim();
+            const p = document.getElementById('regPassword').value.trim();
+            const pConfirm = document.getElementById('regPasswordConfirm').value.trim();
+              
+            if (!u || !p) {
+                showNotification("Kullanıcı adı ve şifre gerekli!", "error");
+                return;
+            }
+              
+            if (p !== pConfirm) {
+                showNotification("Şifreler eşleşmiyor!", "error");
+                return;
+            }
+              
+            // Şifre güçlülük kontrolü
+            const strength = checkPasswordStrength();
+            if (strength < 75) {
+                showNotification("Şifre yeterince güçlü değil! En az 8 karakter, büyük/küçük harf, rakam ve özel karakter içermeli.", "error");
+                return;
+            }
+              
+            if (users[u]) {
+                showNotification("Bu kullanıcı adı zaten var!", "error");
+                return;
+            }
+              
+            // Yeni kullanıcı her zaman "user" rolünde oluşturulur
+            users[u] = { 
+                password: p, 
+                role: "user", 
+                displayName: u, 
+                avatar: u.charAt(0).toUpperCase(),
+                banned: false,
+                avatarUrl: null,
+                createdAt: new Date().toISOString(),
+                lastLogin: null
+            };
+            saveUsers(); // Yeni kullanıcıyı hafızaya kaydet
+            
+            // Oturum bilgilerini güncelle
+            currentUser = u;
+            currentSession = {
+                username: u,
+                loginTime: new Date().toISOString(),
+                lastActivity: Date.now()
+            };
+            
+            showScreen('mainContent');
+            showNotification(`Hoş geldiniz, ${u}! Hesabınız başarıyla oluşturuldu.`, "success");
+
+            // Kayıt bildirimi ekle
+            addNotification(`${u} sisteme kayıt oldu`, 'info');
+
+            // DÜZELTME: Kayıt sonrası "aynı hesap" hatasını önlemek için formu temizle
+            document.getElementById('regUsername').value = "";
+            document.getElementById('regPassword').value = "";
+            document.getElementById('regPasswordConfirm').value = "";
+            document.getElementById('passwordStrengthText').textContent = "";
+        }
+
+        function logout() {
+            // Çıkış bildirimi ekle
+            if (currentUser) {
+                addNotification(`${users[currentUser].displayName} sistemden çıkış yaptı`, 'info');
+            }
+            
+            currentUser = null;
+            currentSession = {
+                username: null,
+                loginTime: null,
+                lastActivity: null
+            };
+            showScreen('loginScreen');
+            showNotification("Başarıyla çıkış yapıldı!", "success");
+        }
+
+        // Kullanıcı menüsü
+        function toggleUserMenu() {
+            document.querySelector('.user-dropdown').classList.toggle('active');
+        }
+
+        function updateUserInfo() {
+            if (currentUser) {
+                const user = users[currentUser];
+                document.getElementById('userDisplayName').textContent = user.displayName;
+                document.getElementById('userDisplayNameHeader').textContent = user.displayName;
+                
+                // Rol badge'ini güncelle
+                let roleBadge = '';
+                if (user.role === 'ceo') {
+                    roleBadge = '<span class="ceo-badge">CEO</span>';
+                } else if (user.role === 'admin') {
+                    roleBadge = '<span class="admin-badge">Admin</span>';
+                } else {
+                    roleBadge = '<span class="user-badge">Kullanıcı</span>';
+                }
+                
+                document.getElementById('userRole').innerHTML = roleBadge;
+                
+                // Avatar güncelleme
+                const avatarInitial = document.getElementById('avatarInitial');
+                const profileAvatarInitial = document.getElementById('profileAvatarInitial');
+                
+                if (user.avatarUrl) {
+                    avatarInitial.style.display = 'none';
+                    profileAvatarInitial.style.display = 'none';
+                    document.getElementById('userAvatar').innerHTML = `<img src="${user.avatarUrl}" alt="Avatar">`;
+                    document.getElementById('profileAvatar').innerHTML = `
+                        <img src="${user.avatarUrl}" alt="Avatar">
+                        <div class="avatar-upload" onclick="document.getElementById('avatarUpload').click()">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                    `;
+                } else {
+                    avatarInitial.textContent = user.avatar;
+                    profileAvatarInitial.textContent = user.avatar;
+                    avatarInitial.style.display = 'flex';
+                    profileAvatarInitial.style.display = 'flex';
+                }
+            }
+        }
+
+        // Bildirim işlemleri
+        function addNotification(text, type = 'info') {
+            const notification = {
+                id: Date.now(),
+                text: text,
+                type: type,
+                date: new Date().toISOString(),
+                read: false
+            };
+            
+            notifications.unshift(notification);
+            saveNotifications();
+            updateNotificationCount();
+        }
+
+        function updateNotificationCount() {
+            const unreadCount = notifications.filter(n => !n.read).length;
+            const notificationCount = document.getElementById('notificationCount');
+            
+            if (unreadCount > 0) {
+                notificationCount.textContent = unreadCount;
+                notificationCount.style.display = 'flex';
+            } else {
+                notificationCount.style.display = 'none';
+            }
+        }
+
+        function toggleNotifications() {
+            const panel = document.getElementById('notificationsPanel');
+            panel.classList.toggle('active');
+            
+            // Bildirimleri işaretle
+            if (panel.classList.contains('active')) {
+                notifications.forEach(n => n.read = true);
+                saveNotifications();
+                updateNotificationCount();
+                renderNotifications();
+            }
+        }
+
+        function renderNotifications() {
+            const list = document.getElementById('notificationsList');
+            list.innerHTML = '';
+            
+            if (notifications.length === 0) {
+                list.innerHTML = '<div class="notification-item"><div class="notification-text">Henüz bildirim yok</div></div>';
+                return;
+            }
+            
+            notifications.slice(0, 10).forEach(notification => {
+                const item = document.createElement('div');
+                item.className = 'notification-item';
+                
+                const date = new Date(notification.date);
+                const timeString = `${date.getDate()}.${date.getMonth()+1}.${date.getFullYear()} ${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
+                
+                item.innerHTML = `
+                    <div class="notification-text">${notification.text}</div>
+                    <div class="notification-time">${timeString}</div>
+                `;
+                
+                list.appendChild(item);
+            });
+        }
+
+        function clearNotifications() {
+            notifications = [];
+            saveNotifications();
+            updateNotificationCount();
+            renderNotifications();
+        }
+
+        // Tema değiştirme
+        function toggleTheme() {
+            showNotification("Tema değiştirme özelliği yakında eklenecek!", "warning");
+        }
+
+        // Haber işlemleri
+        function renderHaberler() {
+            const container = document.getElementById('haberlerContainer');
+            container.innerHTML = '';
+              
+            let filteredHaberler = [...haberler];
+            
+            if (currentFilter === 'popular') {
+                filteredHaberler.sort((a, b) => b.likes - a.likes);
+            } else if (currentFilter !== 'all') {
+                filteredHaberler = haberler.filter(haber => {
+                    return haber.kategori.includes(currentFilter);
+                });
+            }
+              
+            if (filteredHaberler.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="far fa-newspaper"></i>
+                        <h3>Henüz haber bulunmuyor</h3>
+                        <p>${currentFilter !== 'all' ? 'Bu kategoride henüz haber yok.' : 'İlk haberi eklemek için "Yeni Paylaşım Yap" butonuna tıklayın.'}</p>
+                    </div>
+                `;
+                return;
+            }
+              
+            filteredHaberler.forEach((h, i) => {
+                const hdiv = document.createElement('div');
+                hdiv.className = "haber";
+                  
+                let badgeHTML = '';
+                if (h.kategori.includes('mcpe')) {
+                    badgeHTML += '<span class="badge mcpe">MCPE</span>';
+                }
+                if (h.kategori.includes('licensed')) {
+                    badgeHTML += '<span class="badge licensed">Lisanslı</span>';
+                }
+                if (h.kategori.includes('announcement')) {
+                    badgeHTML += '<span class="badge announcement">Duyuru</span>';
+                }
+                  
+                const isLiked = h.likedBy.includes(currentUser);
+                const authorName = users[h.author] ? users[h.author].displayName : h.author;
+                  
+                hdiv.innerHTML = `
+                    <div class="haber-header">
+                        <h3>${h.baslik}</h3>
+                    </div>
+                    <p>${h.metin}</p>
+                    <div class="badge-container">${badgeHTML}</div>
+                    <div class="haber-footer">
+                        <div>
+                            <span class="haber-date">${h.tarih}</span>
+                            <div style="font-size: 12px; color: var(--gray); margin-top: 5px;">Yayınlayan: ${authorName}</div>
+                            <div style="font-size: 12px; color: var(--gray);">${h.comments ? h.comments.length : 0} yorum</div>
+                        </div>
+                        <div class="haber-actions">
+                            <button class="like-btn ${isLiked ? 'liked' : ''}" onclick="event.stopPropagation(); toggleLike(${i})">
+                                <i class="${isLiked ? 'fas' : 'far'} fa-heart"></i> ${h.likes}
+                            </button>
+                        </div>
+                    </div>
+                `;
+                  
+                hdiv.onclick = () => openHaber(i);
+                container.appendChild(hdiv);
+            });
+        }
+
+        let currentHaberIndex = null;
+
+        function openHaber(i) {
+            currentHaberIndex = i;
+            const h = haberler[i];
+            document.getElementById('haberBaslik').innerText = h.baslik;
+            document.getElementById('haberMetin').innerText = h.metin;
+            document.getElementById('haberTarih').innerText = h.tarih;
+              
+            let badgeHTML = '';
+            if (h.kategori.includes('mcpe')) {
+                badgeHTML += '<span class="badge mcpe">MCPE</span>';
+            }
+            if (h.kategori.includes('licensed')) {
+                badgeHTML += '<span class="badge licensed">Lisanslı</span>';
+            }
+            if (h.kategori.includes('announcement')) {
+                badgeHTML += '<span class="badge announcement">Duyuru</span>';
+            }
+              
+            document.getElementById('haberBadge').innerHTML = badgeHTML;
+              
+            const isLiked = h.likedBy.includes(currentUser);
+            document.getElementById('modalLikeBtn').innerHTML = 
+                `<i class="${isLiked ? 'fas' : 'far'} fa-heart"></i> ${h.likes}`;
+            document.getElementById('modalLikeBtn').className = `like-btn ${isLiked ? 'liked' : ''}`;
+              
+            if (currentUser && (users[currentUser].role === 'admin' || users[currentUser].role === 'ceo') || h.author === currentUser) {
+                document.getElementById('deleteBtn').style.display = 'inline-block';
+            } else {
+                document.getElementById('deleteBtn').style.display = 'none';
+            }
+              
+            // Yorumları render et
+            renderComments(h);
+              
+            document.getElementById('haberModal').style.display = 'flex';
+        }
+
+        function renderComments(haber) {
+            const container = document.getElementById('commentsContainer');
+            container.innerHTML = '';
+            
+            if (!haber.comments || haber.comments.length === 0) {
+                container.innerHTML = '<p style="color: var(--gray); text-align: center;">Henüz yorum yapılmamış</p>';
+                return;
+            }
+            
+            haber.comments.forEach((comment, index) => {
+                const commentDiv = document.createElement('div');
+                commentDiv.className = 'comment';
+                
+                const authorName = users[comment.author] ? users[comment.author].displayName : comment.author;
+                
+                commentDiv.innerHTML = `
+                    <div class="comment-header">
+                        <span class="comment-author">${authorName}</span>
+                        <span class="comment-date">${comment.date}</span>
+                    </div>
+                    <div class="comment-text">${comment.text}</div>
+                    <div class="comment-actions">
+                        ${(currentUser && (users[currentUser].role === 'admin' || users[currentUser].role === 'ceo' || comment.author === currentUser)) ? 
+                            `<button class="comment-action" onclick="deleteComment(${currentHaberIndex}, ${index})">
+                                <i class="fas fa-trash"></i> Sil
+                            </button>` : ''}
+                    </div>
+                `;
+                
+                container.appendChild(commentDiv);
+            });
+        }
+
+        function addComment() {
+            if (!currentUser) {
+                showNotification("Yorum yapmak için giriş yapmalısınız!", "error");
+                return;
+            }
+            
+            const commentText = document.getElementById('newComment').value.trim();
+            if (!commentText) {
+                showNotification("Yorum metni boş olamaz!", "error");
+                return;
+            }
+            
+            const haber = haberler[currentHaberIndex];
+            if (!haber.comments) {
+                haber.comments = [];
+            }
+            
+            const today = new Date();
+            const dateString = `${today.getDate()} ${getMonthName(today.getMonth())} ${today.getFullYear()}`;
+            
+            haber.comments.push({
+                author: currentUser,
+                text: commentText,
+                date: dateString
+            });
+            
+            saveHaberler();
+            renderComments(haber);
+            document.getElementById('newComment').value = '';
+            
+            // Yorum bildirimi ekle
+            if (haber.author !== currentUser) {
+                addNotification(`${users[currentUser].displayName}, "${haber.baslik}" haberine yorum yaptı`, 'info');
+            }
+            
+            showNotification("Yorumunuz başarıyla eklendi!", "success");
+        }
+
+        function deleteComment(haberIndex, commentIndex) {
+            const haber = haberler[haberIndex];
+            haber.comments.splice(commentIndex, 1);
+            saveHaberler();
+            renderComments(haber);
+            showNotification("Yorum başarıyla silindi!", "success");
+        }
+
+        function closeHaber() {
+            document.getElementById('haberModal').style.display = 'none';
+        }
+
+        function toggleAddHaber() {
+            if (!currentUser) {
+                showNotification("Önce giriş yapmalısınız!", "error");
+                return;
+            }
+              
+            if (users[currentUser].role !== 'admin' && users[currentUser].role !== 'ceo') {
+                showNotification("Sadece adminler ve CEO'lar haber ekleyebilir!", "error");
+                return;
+            }
+              
+            const panel = document.getElementById('addHaberDiv');
+            panel.style.display = (panel.style.display === 'none' || panel.style.display === '') ? 'block' : 'none';
+        }
+
+        function addHaber() {
+            const title = document.getElementById('newHaberTitle').value.trim();
+            const text = document.getElementById('newHaberText').value.trim();
+            const category = document.getElementById('newHaberCategory').value;
+              
+            if (!title || !text) {
+                showNotification("Başlık ve metin gerekli!", "error");
+                return;
+            }
+              
+            const today = new Date();
+            const dateString = `${today.getDate()} ${getMonthName(today.getMonth())} ${today.getFullYear()}`;
+              
+            const kategori = [category];
+            if (text.toLowerCase().includes('mcpe') && !kategori.includes('mcpe')) kategori.push('mcpe');
+            if (text.toLowerCase().includes('lisans') && !kategori.includes('licensed')) kategori.push('licensed');
+              
+            haberler.unshift({
+                baslik: title,
+                metin: text,
+                tarih: dateString,
+                kategori: kategori,
+                likes: 0,
+                likedBy: [],
+                author: currentUser,
+                comments: []
+            });
+              
+            saveHaberler(); // Yeni haberi hafızaya kaydet
+            renderHaberler();
+            document.getElementById('newHaberTitle').value = "";
+            document.getElementById('newHaberText').value = "";
+            document.getElementById('addHaberDiv').style.display = 'none';
+              
+            // Haber bildirimi ekle
+            addNotification(`${users[currentUser].displayName} yeni bir haber paylaştı: "${title}"`, 'info');
+              
+            showNotification('Yeni haber başarıyla eklendi!', "success");
+        }
+
+        // --- Onay Modalı Fonksiyonları ---
+        let confirmCallback = null;
+
+        function openConfirmModal(message, callback) {
+            document.getElementById('confirmMessage').textContent = message;
+            confirmCallback = callback;
+            document.getElementById('confirmModal').style.display = 'flex';
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').style.display = 'none';
+            confirmCallback = null;
+        }
+
+        function executeConfirm() {
+            if (typeof confirmCallback === 'function') {
+                confirmCallback();
+            }
+            closeConfirmModal();
+        }
+        // --- BİTTİ ---
+
+        function deleteHaber() {
+            if (currentHaberIndex !== null) {
+                openConfirmModal("Bu haberi silmek istediğinizden emin misiniz?", () => {
+                    const deletedHaber = haberler[currentHaberIndex];
+                    haberler.splice(currentHaberIndex, 1);
+                    saveHaberler(); // Silme işlemini kaydet
+                    renderHaberler();
+                    closeHaber();
+                    
+                    // Silme bildirimi ekle
+                    addNotification(`${users[currentUser].displayName}, "${deletedHaber.baslik}" haberini sildi`, 'warning');
+                    
+                    showNotification('Haber başarıyla silindi!', "success");
+                });
+            }
+        }
+
+        function toggleLike(haberIndex) {
+            if (!currentUser) {
+                showNotification("Beğenmek için giriş yapmalısınız!", "error");
+                return;
+            }
+              
+            const haber = haberler[haberIndex];
+            const userIndex = haber.likedBy.indexOf(currentUser);
+              
+            if (userIndex === -1) {
+                haber.likedBy.push(currentUser);
+                haber.likes++;
+                
+                // Beğeni bildirimi ekle (haber sahibi değilse)
+                if (haber.author !== currentUser) {
+                    addNotification(`${users[currentUser].displayName}, "${haber.baslik}" haberini beğendi`, 'info');
+                }
+            } else {
+                haber.likedBy.splice(userIndex, 1);
+                haber.likes--;
+            }
+              
+            saveHaberler(); // Beğeniyi kaydet
+              
+            if (document.getElementById('haberModal').style.display === 'flex') {
+                const isLiked = haber.likedBy.includes(currentUser);
+                document.getElementById('modalLikeBtn').innerHTML = 
+                    `<i class="${isLiked ? 'fas' : 'far'} fa-heart"></i> ${haber.likes}`;
+                document.getElementById('modalLikeBtn').className = `like-btn ${isLiked ? 'liked' : ''}`;
+            }
+              
+            renderHaberler();
+        }
+
+        // Filtreleme
+        function setFilter(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+              
+            const buttons = document.querySelectorAll('.filter-btn');
+            for (let btn of buttons) {
+                const btnFilter = btn.getAttribute('onclick').match(/'([^']+)'/)[1];
+                if (btnFilter === filter) {
+                    btn.classList.add('active');
+                    break;
+                }
+            }
+              
+            renderHaberler();
+        }
+
+        function filterHaberler() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const haberCards = document.querySelectorAll('.haber');
+              
+            haberCards.forEach(card => {
+                const title = card.querySelector('h3').textContent.toLowerCase();
+                const text = card.querySelector('p').textContent.toLowerCase();
+                  
+                if (title.includes(searchTerm) || text.includes(searchTerm)) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // Admin işlemleri
+        function renderUsersList() {
+            const usersList = document.getElementById('usersList');
+            usersList.innerHTML = '';
+              
+            Object.keys(users).forEach(username => {
+                const user = users[username];
+                const userCard = document.createElement('div');
+                userCard.className = 'user-card';
+                  
+                let actionsHTML = '';
+                // CEO'lar, diğer CEO'lar hariç herkesi yönetebilir
+                if (users[currentUser].role === 'ceo' && user.role !== 'ceo' && currentUser !== username) {
+                    actionsHTML = `
+                        <button class="user-action-btn" onclick="toggleAdmin('${username}')" title="${user.role === 'admin' ? 'Admin yetkisini kaldır' : 'Admin yap'}">
+                            <i class="fas fa-user-shield"></i>
+                        </button>
+                        <button class="user-action-btn ${user.banned ? '' : 'delete'}" onclick="toggleBan('${username}')" title="${user.banned ? 'Yasağı kaldır' : 'Yasakla'}">
+                            <i class="fas ${user.banned ? 'fa-unlock' : 'fa-ban'}"></i>
+                        </button>
+                        <button class="user-action-btn delete" onclick="deleteUser('${username}')" title="Kullanıcıyı sil">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    `;
+                } 
+                // Adminler, sadece 'user' rolündekileri banlayabilir
+                else if (users[currentUser].role === 'admin' && user.role === 'user' && currentUser !== username) {
+                     actionsHTML = `
+                        <button class="user-action-btn ${user.banned ? '' : 'delete'}" onclick="toggleBan('${username}')" title="${user.banned ? 'Yasağı kaldır' : 'Yasakla'}">
+                            <i class="fas ${user.banned ? 'fa-unlock' : 'fa-ban'}"></i>
+                        </button>
+                    `;
+                }
+
+                // Rol badge'i
+                let roleBadge = '';
+                if (user.role === 'ceo') {
+                    roleBadge = '<span class="ceo-badge">CEO</span>';
+                } else if (user.role === 'admin') {
+                    roleBadge = '<span class="admin-badge">Admin</span>';
+                } else {
+                    roleBadge = '<span class="user-badge">Kullanıcı</span>';
+                }
+
+                userCard.innerHTML = `
+                    <div class="user-avatar">${user.avatar}</div>
+                    <div class="user-card-info">
+                        <h4>${user.displayName} <span class="ban-status ${user.banned ? 'banned' : 'active'}">${user.banned ? 'Yasaklı' : 'Aktif'}</span></h4>
+                        <p>@${username} ${roleBadge}</p>
+                        ${user.lastLogin ? `<p style="font-size: 10px; color: var(--gray); margin-top: 5px;">Son giriş: ${new Date(user.lastLogin).toLocaleDateString('tr-TR')}</p>` : ''}
+                    </div>
+                    <div class="user-actions">
+                        ${actionsHTML}
+                    </div>
+                `;
+                  
+                usersList.appendChild(userCard);
+            });
+        }
+
+        // CEO için kullanıcı listesi
+        function renderCeoUsersList() {
+            const ceoUsersList = document.getElementById('ceoUsersList');
+            ceoUsersList.innerHTML = '';
+              
+            Object.keys(users).forEach(username => {
+                const user = users[username];
+                const userCard = document.createElement('div');
+                userCard.className = 'user-card';
+                  
+                let actionsHTML = '';
+                // CEO'lar, diğer CEO'lar hariç herkesi yönetebilir
+                if (users[currentUser].role === 'ceo' && user.role !== 'ceo' && currentUser !== username) {
+                    actionsHTML = `
+                        <button class="user-action-btn" onclick="toggleAdmin('${username}')" title="${user.role === 'admin' ? 'Admin yetkisini kaldır' : 'Admin yap'}">
+                            <i class="fas fa-user-shield"></i>
+                        </button>
+                        <button class="user-action-btn" onclick="openTimedBanForUser('${username}')" title="Süreli Banla">
+                            <i class="fas fa-user-clock"></i>
+                        </button>
+                        <button class="user-action-btn ${user.banned ? '' : 'delete'}" onclick="toggleBan('${username}')" title="${user.banned ? 'Yasağı kaldır' : 'Yasakla'}">
+                            <i class="fas ${user.banned ? 'fa-unlock' : 'fa-ban'}"></i>
+                        </button>
+                        <button class="user-action-btn delete" onclick="deleteUser('${username}')" title="Kullanıcıyı sil">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    `;
+                }
+
+                // Rol badge'i
+                let roleBadge = '';
+                if (user.role === 'ceo') {
+                    roleBadge = '<span class="ceo-badge">CEO</span>';
+                } else if (user.role === 'admin') {
+                    roleBadge = '<span class="admin-badge">Admin</span>';
+                } else {
+                    roleBadge = '<span class="user-badge">Kullanıcı</span>';
+                }
+
+                userCard.innerHTML = `
+                    <div class="user-avatar">${user.avatar}</div>
+                    <div class="user-card-info">
+                        <h4>${user.displayName} <span class="ban-status ${user.banned ? 'banned' : 'active'}">${user.banned ? 'Yasaklı' : 'Aktif'}</span></h4>
+                        <p>@${username} ${roleBadge}</p>
+                        <p style="font-size: 10px; color: var(--gray); margin-top: 5px;">Oluşturulma: ${new Date(user.createdAt).toLocaleDateString('tr-TR')}</p>
+                        ${user.lastLogin ? `<p style="font-size: 10px; color: var(--gray);">Son giriş: ${new Date(user.lastLogin).toLocaleDateString('tr-TR')}</p>` : ''}
+                    </div>
+                    <div class="user-actions">
+                        ${actionsHTML}
+                    </div>
+                `;
+                  
+                ceoUsersList.appendChild(userCard);
+            });
+        }
+
+        function toggleAdmin(username) {
+            if (users[currentUser].role !== 'ceo') {
+                showNotification("Sadece CEO kullanıcıları admin atayabilir!", "error");
+                return;
+            }
+            if (users[username].role === 'ceo') {
+                 showNotification("CEO'nun rolü değiştirilemez!", "error");
+                 return;
+            }
+              
+            const user = users[username];
+            user.role = user.role === 'admin' ? 'user' : 'admin';
+            saveUsers(); // Değişikliği kaydet
+            
+            // Yetki değişikliği bildirimi
+            addNotification(`${users[currentUser].displayName}, ${user.displayName} kullanıcısını ${user.role === 'admin' ? 'admin yaptı' : 'kullanıcı yaptı'}`, 'warning');
+            
+            renderUsersList();
+            renderCeoUsersList();
+            showNotification(`Kullanıcı ${user.displayName} ${user.role === 'admin' ? 'admin yapıldı' : 'kullanıcı yapıldı'}!`, "success");
+        }
+
+        function toggleBan(username) {
+            if (users[currentUser].role !== 'admin' && users[currentUser].role !== 'ceo') {
+                showNotification("Sadece admin veya CEO kullanıcıları yasaklayabilir!", "error");
+                return;
+            }
+             if (users[username].role === 'ceo') {
+                 showNotification("CEO banlanamaz!", "error");
+                 return;
+            }
+            if (users[username].role === 'admin' && users[currentUser].role !== 'ceo') {
+                 showNotification("Adminler, sadece CEO tarafından banlanabilir!", "error");
+                 return;
+            }
+              
+            const user = users[username];
+            user.banned = !user.banned;
+            saveUsers(); // Değişikliği kaydet
+            
+            // Ban bildirimi
+            addNotification(`${users[currentUser].displayName}, ${user.displayName} kullanıcısını ${user.banned ? 'yasakladı' : 'yasak kaldırdı'}`, 'warning');
+            
+            renderUsersList();
+            renderCeoUsersList();
+            updateStats();
+            showNotification(`Kullanıcı ${user.displayName} ${user.banned ? 'yasaklandı' : 'yasak kaldırıldı'}!`, "success");
+        }
+
+        function deleteUser(username) {
+            if (users[currentUser].role !== 'ceo') {
+                showNotification("Sadece CEO kullanıcıları silebilir!", "error");
+                return;
+            }
+             if (users[username].role === 'ceo') {
+                 showNotification("CEO silinemez!", "error");
+                 return;
+            }
+              
+            openConfirmModal(`${username} kullanıcısını silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.`, () => {
+                const user = users[username];
+                delete users[username];
+                saveUsers(); // Silmeyi kaydet
+                
+                // Silme bildirimi
+                addNotification(`${users[currentUser].displayName}, ${user.displayName} kullanıcısını sildi`, 'warning');
+                
+                renderUsersList();
+                renderCeoUsersList();
+                updateStats();
+                showNotification('Kullanıcı başarıyla silindi!', "success");
+            });
+        }
+
+        function updateStats() {
+            document.getElementById('totalHaberCount').textContent = haberler.length;
+            document.getElementById('totalUserCount').textContent = Object.keys(users).length;
+            document.getElementById('activeUserCount').textContent = Object.keys(users).filter(u => !users[u].banned).length;
+            document.getElementById('bannedUserCount').textContent = Object.keys(users).filter(u => users[u].banned).length;
+        }
+
+        // CEO Paneli Fonksiyonları
+        function switchTab(tabId) {
+            // Tüm sekmeleri ve içerikleri gizle
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Seçilen sekme ve içeriği aktif yap
+            document.querySelector(`.tab[onclick="switchTab('${tabId}')"]`).classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        function openPasswordViewModal() {
+            document.getElementById('passwordViewModal').style.display = 'flex';
+            document.getElementById('passwordResult').style.display = 'none';
+        }
+
+        function closePasswordViewModal() {
+            document.getElementById('passwordViewModal').style.display = 'none';
+        }
+
+        function viewUserPassword() {
+            const username = document.getElementById('passwordViewUsername').value.trim();
+            
+            if (!username) {
+                showNotification("Kullanıcı adı gerekli!", "error");
+                return;
+            }
+            
+            if (!users[username]) {
+                showNotification("Kullanıcı bulunamadı!", "error");
+                return;
+            }
+            
+            document.getElementById('passwordViewUser').textContent = username;
+            document.getElementById('passwordViewPassword').textContent = users[username].password;
+            document.getElementById('passwordResult').style.display = 'block';
+            
+            // Şifre görüntüleme bildirimi
+            addNotification(`${users[currentUser].displayName}, ${username} kullanıcısının şifresini görüntüledi`, 'warning');
+        }
+
+        function openTimedBanModal() {
+            document.getElementById('timedBanModal').style.display = 'flex';
+        }
+
+        function openTimedBanForUser(username) {
+            document.getElementById('timedBanUsername').value = username;
+            openTimedBanModal();
+        }
+
+        function closeTimedBanModal() {
+            document.getElementById('timedBanModal').style.display = 'none';
+        }
+
+        function applyTimedBan() {
+            const username = document.getElementById('timedBanUsername').value.trim();
+            const duration = document.getElementById('banDuration').value;
+            const reason = document.getElementById('banReason').value.trim();
+            
+            if (!username) {
+                showNotification("Kullanıcı adı gerekli!", "error");
+                return;
+            }
+            
+            if (!users[username]) {
+                showNotification("Kullanıcı bulunamadı!", "error");
+                return;
+            }
+            
+            if (users[username].role === 'ceo') {
+                showNotification("CEO banlanamaz!", "error");
+                return;
+            }
+            
+            // Süreli ban uygulama
+            users[username].banned = true;
+            users[username].banReason = reason;
+            users[username].banDuration = duration;
+            users[username].bannedUntil = duration === 'permanent' ? null : 
+                new Date(Date.now() + (parseInt(duration) * 24 * 60 * 60 * 1000)).toISOString();
+            
+            saveUsers();
+            renderUsersList();
+            renderCeoUsersList();
+            updateStats();
+            closeTimedBanModal();
+            
+            // Süreli ban bildirimi
+            addNotification(`${users[currentUser].displayName}, ${username} kullanıcısını ${duration === 'permanent' ? 'kalıcı olarak' : duration + ' gün süreyle'} yasakladı`, 'warning');
+            
+            showNotification(`${username} kullanıcısı başarıyla banlandı!`, "success");
+        }
+
+        function openRoleManagementModal() {
+            document.getElementById('roleManagementModal').style.display = 'flex';
+        }
+
+        function closeRoleManagementModal() {
+            document.getElementById('roleManagementModal').style.display = 'none';
+        }
+
+        function changeUserRole() {
+            const username = document.getElementById('roleUsername').value.trim();
+            const newRole = document.getElementById('newRole').value;
+            
+            if (!username) {
+                showNotification("Kullanıcı adı gerekli!", "error");
+                return;
+            }
+            
+            if (!users[username]) {
+                showNotification("Kullanıcı bulunamadı!", "error");
+                return;
+            }
+            
+            if (users[username].role === 'ceo' && currentUser !== username) {
+                showNotification("CEO rolü değiştirilemez!", "error");
+                return;
+            }
+            
+            users[username].role = newRole;
+            saveUsers();
+            renderUsersList();
+            renderCeoUsersList();
+            closeRoleManagementModal();
+            
+            // Rol değişikliği bildirimi
+            addNotification(`${users[currentUser].displayName}, ${username} kullanıcısının rolünü ${newRole} olarak değiştirdi`, 'warning');
+            
+            showNotification(`${username} kullanıcısının rolü ${newRole} olarak değiştirildi!`, "success");
+        }
+
+        // Sistem fonksiyonları
+        function backupData() {
+            const data = {
+                users: users,
+                haberler: haberler,
+                backupDate: new Date().toISOString()
+            };
+            
+            const dataStr = JSON.stringify(data, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(dataBlob);
+            a.download = `ehkm-backup-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            
+            // Yedekleme bildirimi
+            addNotification(`${users[currentUser].displayName} veri yedeklemesi aldı`, 'info');
+            
+            showNotification("Veri yedekleme başarılı!", "success");
+        }
+
+        function openDataCleanupModal() {
+            openConfirmModal("Eski verileri temizlemek istediğinizden emin misiniz? Bu işlem 6 aydan eski haberleri silecektir.", () => {
+                const sixMonthsAgo = new Date();
+                sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+                
+                const initialCount = haberler.length;
+                haberler = haberler.filter(haber => {
+                    const haberDate = new Date(haber.tarih);
+                    return haberDate > sixMonthsAgo;
+                });
+                
+                saveHaberler();
+                renderHaberler();
+                
+                // Veri temizleme bildirimi
+                addNotification(`${users[currentUser].displayName} eski verileri temizledi (${initialCount - haberler.length} haber silindi)`, 'info');
+                
+                showNotification(`${initialCount - haberler.length} eski haber temizlendi!`, "success");
+            });
+        }
+
+        function openSystemLogsModal() {
+            showNotification("Sistem logları özelliği yakında eklenecek!", "warning");
+        }
+
+        // Profil işlemleri
+        function openProfileModal() {
+            document.getElementById('profileModal').style.display = 'flex';
+            document.getElementById('profileName').value = users[currentUser].displayName;
+            updateUserInfo();
+            toggleUserMenu(); // Menüyü kapat
+        }
+
+        function closeProfileModal() {
+            document.getElementById('profileModal').style.display = 'none';
+        }
+
+        function uploadAvatar(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    users[currentUser].avatarUrl = e.target.result;
+                    saveUsers();
+                    updateUserInfo();
+                    showNotification("Profil fotoğrafı başarıyla güncellendi!", "success");
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function updateProfile() {
+            const newName = document.getElementById('profileName').value.trim();
+            if (!newName) {
+                showNotification("İsim boş olamaz!", "error");
+                return;
+            }
+              
+            users[currentUser].displayName = newName;
+            users[currentUser].avatar = newName.charAt(0).toUpperCase();
+            saveUsers(); // Değişikliği kaydet
+            updateUserInfo();
+            closeProfileModal();
+            showNotification('Profil başarıyla güncellendi!', "success");
+        }
+
+        function openChangePasswordModal() {
+            document.getElementById('changePasswordModal').style.display = 'flex';
+            toggleUserMenu(); // Menüyü kapat
+            
+            // Şifre güçlülük kontrolü
+            document.getElementById('newPassword').addEventListener('input', checkPasswordStrength);
+        }
+
+        function closeChangePasswordModal() {
+            document.getElementById('changePasswordModal').style.display = 'none';
+        }
+
+        function changePassword() {
+            const currentPwd = document.getElementById('currentPassword').value;
+            const newPwd = document.getElementById('newPassword').value;
+            const confirmPwd = document.getElementById('confirmNewPassword').value;
+              
+            if (!currentPwd || !newPwd || !confirmPwd) {
+                showNotification("Tüm alanlar doldurulmalıdır!", "error");
+                return;
+            }
+
+            if (users[currentUser].password !== currentPwd) {
+                showNotification("Mevcut şifre yanlış!", "error");
+                return;
+            }
+              
+            if (newPwd !== confirmPwd) {
+                showNotification("Yeni şifreler eşleşmiyor!", "error");
+                return;
+            }
+
+            // Şifre güçlülük kontrolü
+            const strength = checkPasswordStrength();
+            if (strength < 75) {
+                showNotification("Şifre yeterince güçlü değil! En az 8 karakter, büyük/küçük harf, rakam ve özel karakter içermeli.", "error");
+                return;
+            }
+              
+            users[currentUser].password = newPwd;
+            saveUsers(); // Şifre değişikliğini kaydet
+              
+            document.getElementById('currentPassword').value = "";
+            document.getElementById('newPassword').value = "";
+            document.getElementById('confirmNewPassword').value = "";
+
+            closeChangePasswordModal();
+            showNotification('Şifre başarıyla değiştirildi!', "success");
+        }
+
+        // Yardımcı fonksiyonlar
+        function getMonthName(monthIndex) {
+            const months = [
+                "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
+                "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"
+            ];
+            return months[monthIndex];
+        }
+
+        function showNotification(message, type = "info") {
+            const existingNotification = document.querySelector('.notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            
+            let icon = 'fas fa-info-circle';
+            if (type === 'success') icon = 'fas fa-check-circle';
+            if (type === 'error') icon = 'fas fa-exclamation-circle';
+            if (type === 'warning') icon = 'fas fa-exclamation-triangle';
+            
+            notification.innerHTML = `<i class="${icon}"></i> ${message}`;
+            document.body.appendChild(notification);
+              
+            setTimeout(() => {
+                if (document.body.contains(notification)) {
+                    document.body.removeChild(notification);
+                }
+            }, 3000);
+        }
+
+        // Sayfa yüklendiğinde giriş ekranını göster
+        window.addEventListener('DOMContentLoaded', () => {
+            showScreen('loginScreen');
+            renderNotifications();
+            
+            // Oturum kontrolü - eğer önceki oturum varsa
+            const lastSession = localStorage.getItem('lastSession');
+            if (lastSession) {
+                const sessionData = JSON.parse(lastSession);
+                if (sessionData.username && users[sessionData.username]) {
+                    // Otomatik giriş yapma, sadece bilgi göster
+                    document.getElementById('username').value = sessionData.username;
+                    showNotification(`Son giriş: ${sessionData.username}`, "info");
+                }
+            }
+        });
+
+        // Dışarı tıklayınca menüleri kapat
+        document.addEventListener('click', function(event) {
+            const userMenu = event.target.closest('.user-menu');
+            const dropdown = document.querySelector('.user-dropdown');
+            const notificationBell = event.target.closest('.notification-bell');
+            const notificationsPanel = document.getElementById('notificationsPanel');
+              
+            if (!userMenu && dropdown.classList.contains('active')) {
+                dropdown.classList.remove('active');
+            }
+            
+            if (!notificationBell && notificationsPanel.classList.contains('active')) {
+                notificationsPanel.classList.remove('active');
+            }
+        });
+
+        // Oturum bilgilerini kaydet
+        window.addEventListener('beforeunload', function() {
+            if (currentSession.username) {
+                localStorage.setItem('lastSession', JSON.stringify(currentSession));
+            }
+        });
+    </script>
+</body>
+</html>
